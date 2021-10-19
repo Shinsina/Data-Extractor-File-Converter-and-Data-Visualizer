@@ -30,9 +30,7 @@ elif (ExcelFileChecker != None):
     FileType = ExcelFileChecker.group()
 else:
     FileType = 'File type is not currently supported'
-#print(FileType) #Debugging line
 FileNameRaw = FileName.rsplit(FileType, 1)
-#print(FileNameRaw[0]) #Debugging Line
 
 #This block will be turned into the DataExtraction Class with its own file DataExtraction.py
 if (FileType == '.txt'):
@@ -45,7 +43,6 @@ if (FileType == '.txt'):
     for match in matches:
         match = match.strip('\n')
         matchesFixed.append(match)
-    #print(matchesFixed)
 elif (FileType == '.csv'):
     with open(FileName) as f:
         reader = csv.reader(f)
@@ -54,16 +51,13 @@ elif (FileType == '.csv'):
         data = list(reader)
         row_count = len(data)
         for index, column_header in enumerate(header_row):
-            #print(index, column_header) #Debugging line
             column_number.append(index)
-        #print(len(column_number)) #Debugging line
         for i in range (0,row_count):
             for j in range(0,len(column_number)):
                 print(data[i][j]) #This prints the data by row as found in the CSV file
 elif (FileType == '.xlsx'):
     SheetContent = []
     wb = openpyxl.load_workbook(FileName)
-    #print(wb.get_sheet_names()) #Debugging line
     sheet = wb.active
     max_row=sheet.max_row
     max_column=sheet.max_column
@@ -72,13 +66,6 @@ elif (FileType == '.xlsx'):
             cell_obj=sheet.cell(row=i,column=j)
             print(cell_obj.value) #Debugging Line
             SheetContent.append(cell_obj.value)
-    #print(SheetContent[max_column-1]) #Debugging Line
-    #print(SheetContent[(2*max_column)-1]) #Debugging Line
-    #print(SheetContent[(3*max_column)-1]) #Debugging Line
-    #print(max_row-1)  #Debugging Line
-    #print((2*max_row)-1)  #Debugging Line
-    #print((3*max_row)-1)  #Debugging Line
-    #print(SheetContent)
 else:
     print ('File type is not currently supported')
 
@@ -150,12 +137,9 @@ if (FileType == '.csv'):
         data = list(reader)
         row_count = len(data)
         for index, column_header in enumerate(header_row):
-            #print(index, column_header) #Debugging line
             column_number.append(index)
             if (DateIgnoreCase.match(column_header)):
                 DateIndex = index
-                #print(DateIndex)
-        #print(len(column_number)) #Debugging line
         dates = []
         entries = []
         data_column = []
@@ -166,48 +150,32 @@ if (FileType == '.csv'):
                 elif(j==DateIndex):
                     dates.append(datetime.strptime(data[i][j], '%Y-%m-%d'))
     data_column = list(dict.fromkeys(data_column))
-    #print(len(data_column))
     for i in range (0,row_count):
         for j in range(0,len(column_number)):
-            #print(j == data_column[0])
             if (j in data_column):
                 entries.append(data[i][j])
-    #print(entries)
     column_checks = []
     modular_factor = int(len(entries)/row_count)
     for w in range (0,len(entries)):
         column_check = Mod(w,modular_factor)
-        #print(column_check)
         column_checks.append(column_check)
     column_checks = list(dict.fromkeys(column_checks))
-    #print(column_checks)
     listofcolumns = []
     for y in range (0,modular_factor):
-        #print(y)
         temporary_column = []
         for(i,item)in enumerate(entries, start=1):
-            #print(column_checks[y])
             if (Mod(i,modular_factor)==column_checks[y]):
                 temporary_column.append(item)
                 if (len(temporary_column) == len(entries)/len(column_checks)):
                     listofcolumns.append(temporary_column)
-        #print(y)
-        #print(i)
-        #print(Mod(i,modular_factor))
-        #print(listofcolumns) #list of columns contains all columns of integer data found in file
-        #(not particularly sure why but the indexes seem to start from the last column and to get the rest you must decrement or go into negative numbers) 
-        #print(len(listofcolumns))
+        #Not particularly sure why but the indexes seem to start from the last column and to get the rest you must decrement or go into negative numbers 
     #for z in range (0,len(listofcolumns)): #Although from previous testing this should be decrementing it doesn't
         #print(z) #This goes up from 0 not down
-        #print(listofcolumns[z])
     for a in range (0,len(listofcolumns)):
-        #print('This is the start of column ' + str(a) + ' of ' + 'List of Data Columns') #Debugging Line
         for b in range (0,len(listofcolumns[a])):
             listofcolumns[a][b] = int(listofcolumns[a][b])
-            #print(listofcolumns[a][b])
     plt.style.use('seaborn')
     fig, ax = plt.subplots()
-    #print(dates)
     for c in range (0,len(listofcolumns)):
         ax.plot(dates, listofcolumns[c], c='red')
     plt.title("Graph of data found in file " + str(FileName), fontsize=24)
